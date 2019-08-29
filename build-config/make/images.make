@@ -312,10 +312,14 @@ endif
 		 fi
 	$(Q) touch $@
 
-# This step creates the cpio archive and compresses it
-$(SYSROOT_CPIO_XZ) : $(SYSROOT_COMPLETE_STAMP)
-	$(Q) echo "==== Create xz compressed sysroot for bootstrap ===="
+# This step creates the cpio archive
+$(SYSROOT_CPIO) : $(SYSROOT_COMPLETE_STAMP)
+	$(Q) echo "==== Create sysroot cpio archive ===="
 	$(Q) fakeroot -- $(SCRIPTDIR)/make-sysroot.sh $(SYSROOTDIR) $(SYSROOT_CPIO)
+# This step compresses it. Since compressed sysroot is not required for some targets
+#   (e.g. initramfs built into vmlinuz image), these steps are splitted.
+$(SYSROOT_CPIO_XZ) : $(SYSROOT_CPIO)
+	$(Q) echo "==== Create xz compressed sysroot for bootstrap ===="
 	$(Q) xz --compress --force --check=crc32 --stdout -8 $(SYSROOT_CPIO) > $@
 
 $(UPDATER_INITRD) : $(SYSROOT_CPIO_XZ)
