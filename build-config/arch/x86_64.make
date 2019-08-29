@@ -49,8 +49,10 @@ ifndef CONSOLE_PORT
   endif
 endif
 
-KERNEL_ARCH		= x86
-KERNEL_IMAGE_FILE	= $(LINUX_BOOTDIR)/bzImage
+# This may be set to 'x86_64' for some flavor. Allow it
+KERNEL_ARCH		?= x86
+# Maybe I wanna zImage or uImage or whatever?! Don't tread on me!
+KERNEL_IMAGE_FILE	?= $(LINUX_BOOTDIR)/bzImage
 KERNEL_INSTALL_DEPS	+= $(KERNEL_VMLINUZ_INSTALL_STAMP)
 
 CLIB64 = 64
@@ -108,44 +110,70 @@ MTDUTILS_ENABLE ?= yes
 PARTITION_TYPE ?= gpt
 
 # Include the GPT partitioning tools
-GPT_ENABLE = yes
+GPT_ENABLE ?= yes
+ifeq ($(PARTITION_TYPE),gpt)
+  ifneq ($(GPT_ENABLE),yes)
+    $(warning ****************************************************)
+    $(warning * PARTITION_TYPE = gpt depends on GPT_ENABLE = yes *)
+    $(warning ****************************************************)
+    $(error Cannot continue)
+  endif
+  GPT_ENABLE = yes
+endif
 
 # gptfdisk requires C++
-REQUIRE_CXX_LIBS = yes
-
-# Include the GNU parted partitioning tools
-PARTED_ENABLE = yes
+REQUIRE_CXX_LIBS ?= yes
+ifeq ($(GPT_ENABLE),yes)
+  ifneq ($(REQUIRE_CXX_LIBS),yes)
+    $(warning ******************************************************)
+    $(warning * GPT_ENABLE = yes depends on REQUIRE_CXX_LIBS = yes *)
+    $(warning ******************************************************)
+    $(error Cannot continue)
+  endif
+  REQUIRE_CXX_LIBS = yes
+endif
 
 # Include ext3/4 file system tools
-EXT3_4_ENABLE = yes
+EXT3_4_ENABLE ?= yes
 
 # Include btrfs file system tools
-BTRFS_PROGS_ENABLE = yes
+BTRFS_PROGS_ENABLE ?= yes
 
 # Include GRUB tools
-GRUB_ENABLE = yes
+GRUB_ENABLE ?= yes
 
 # Default to include the i2ctools.  A particular machine.make can
 # override this.
 I2CTOOLS_ENABLE ?= yes
 
 # Include dmidecode tools
-DMIDECODE_ENABLE = yes
+DMIDECODE_ENABLE ?= yes
 
 # Include lvm2 tools
-LVM2_ENABLE = yes
+LVM2_ENABLE ?= yes
+
+# Include the GNU parted partitioning tools
+PARTED_ENABLE ?= yes
+ifeq ($(PARTED_ENABLE),yes)
+  ifneq ($(LVM2_ENABLE),yes)
+    $(warning ****************************************************)
+    $(warning * PARTED_ENABLE = yes depends on LVM2_ENABLE = yes *)
+    $(warning ****************************************************)
+    $(error Cannot continue)
+  endif
+endif
 
 # Include ethtool by default
 ETHTOOL_ENABLE ?= yes
 
 # Include dosfstools
-DOSFSTOOLS_ENABLE = yes
+DOSFSTOOLS_ENABLE ?= yes
 
 # Include kexec-tools
-KEXEC_ENABLE = yes
+KEXEC_ENABLE ?= yes
 
 # Include flashrom
-FLASHROM_ENABLE = yes
+FLASHROM_ENABLE ?= yes
 
 # Include ipmitool
 IPMITOOL_ENABLE ?= no
