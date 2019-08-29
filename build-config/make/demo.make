@@ -42,6 +42,11 @@ DEMO_SYSROOT_NEW_FILES += $(shell \
 			test -f $(DEMO_SYSROOT_COMPLETE_STAMP) &&  \
 			find -L $(DEMO_OS_DIR)/$(ROOTFS_ARCH) -mindepth 1 -cnewer $(DEMO_SYSROOT_COMPLETE_STAMP) \
 			  -print -quit 2>/dev/null)
+DEMO_SYSROOT_NEW_FILES += $(shell \
+			test -d $(MACHINE_DEMO_DIR)/sysroot && \
+			test -f $(DEMO_SYSROOT_COMPLETE_STAMP) &&  \
+			find -L $(MACHINE_DEMO_DIR)/sysroot -mindepth 1 -cnewer $(DEMO_SYSROOT_COMPLETE_STAMP) \
+			  -print -quit 2>/dev/null)
   ifneq ($(strip $(DEMO_SYSROOT_NEW_FILES)),)
     $(shell rm -f $(DEMO_SYSROOT_COMPLETE_STAMP))
   endif
@@ -75,6 +80,9 @@ $(DEMO_SYSROOT_COMPLETE_STAMP): $(SYSROOT_CPIO_XZ)
 		echo "platform=$(PLATFORM)" >> $$t ; \
 		cp $$t $(DEMO_SYSROOTDIR)/lib/demo/machine.conf && rm -f $$t
 	$(Q) cp $(MACHINEDIR)/demo/platform.conf $(DEMO_SYSROOTDIR)/lib/demo
+	$(Q) if [ -d $(MACHINE_DEMO_DIR)/sysroot ] ; then \
+		 cp -r -d --remove-destination -t $(DEMO_SYSROOTDIR) $(MACHINE_DEMO_DIR)/sysroot/* ; \
+		 fi
 	$(Q) touch $@
 
 # This step creates the cpio archive and compresses it

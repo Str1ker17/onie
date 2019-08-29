@@ -130,6 +130,11 @@ SYSROOT_NEW_FILES += $(shell \
 			test -f $(SYSROOT_INIT_STAMP) &&  \
 			find -L $(MACHINEDIR)/rootconf -mindepth 1 -cnewer $(SYSROOT_COMPLETE_STAMP) \
 			  -print -quit 2>/dev/null)
+SYSROOT_NEW_FILES += $(shell \
+			test -d $(MACHINEDIR)/sysroot && \
+			test -f $(SYSROOT_INIT_STAMP) &&  \
+			find -L $(MACHINEDIR)/sysroot -mindepth 1 -cnewer $(SYSROOT_COMPLETE_STAMP) \
+			  -print -quit 2>/dev/null)
   ifneq ($(strip $(SYSROOT_NEW_FILES)),)
     $(shell rm -f $(SYSROOT_COMPLETE_STAMP))
   endif
@@ -302,6 +307,9 @@ endif
 	$(Q) cp $(LSB_RELEASE_FILE) $(SYSROOTDIR)/etc/lsb-release
 	$(Q) cp $(OS_RELEASE_FILE) $(SYSROOTDIR)/etc/os-release
 	$(Q) cp $(MACHINE_CONF) $(SYSROOTDIR)/etc/machine-build.conf
+	$(Q) if [ -d $(MACHINEDIR)/sysroot ] ; then \
+		cp -r -d --remove-destination -t $(MBUILDDIR) $(MACHINEDIR)/sysroot ; \
+		 fi
 	$(Q) touch $@
 
 # This step creates the cpio archive and compresses it
