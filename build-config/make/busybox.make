@@ -14,7 +14,7 @@
 # This is a makefile fragment that defines the build of busybox
 #
 
-BUSYBOX_VERSION		= 1.25.1
+BUSYBOX_VERSION		?= 1.25.1
 BUSYBOX_TARBALL		= busybox-$(BUSYBOX_VERSION).tar.bz2
 BUSYBOX_TARBALL_URLS	+= $(ONIE_MIRROR) https://www.busybox.net/downloads
 BUSYBOX_BUILD_DIR	= $(MBUILDDIR)/busybox
@@ -82,8 +82,9 @@ ifneq ($(MACHINE_BUSYBOX_PATCHDIR),)
 	$(Q) cat $(MACHINE_BUSYBOX_PATCHDIR)/series >> $(BUSYBOX_PATCHDIR)/series
 	$(Q) $(SCRIPTDIR)/cp-machine-patches $(BUSYBOX_PATCHDIR) $(MACHINE_BUSYBOX_PATCHDIR)/series	\
 		$(MACHINE_BUSYBOX_PATCHDIR) $(MACHINEROOT)/busybox
-endif
+else
 	$(Q) $(SCRIPTDIR)/apply-patch-series $(BUSYBOX_PATCHDIR)/series $(BUSYBOX_DIR)
+endif
 	$(Q) touch $@
 
 $(BUSYBOX_DIR)/.config: $(BUSYBOX_CONFIG) $(MACHINE_BUSYBOX_CONFIG_FILE) $(BUSYBOX_PATCH_STAMP)
